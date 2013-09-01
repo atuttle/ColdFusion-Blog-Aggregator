@@ -55,7 +55,7 @@
 	<cfargument name="id" type="numeric" required="true">
 	<cfset var q = "">
 	<cfquery name="q" datasource="#variables.dsn#">
-	select	id, blogidfk, title, url, posted, content, categories, created, clicks 
+	select	id, blogidfk, title, url, posted, content, categories, created, clicks
 	from	entries
 	where	id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.id#">
 	</cfquery>
@@ -129,15 +129,15 @@
 	<cfset var stats = structNew()>
 	<cfset var q = "">
 	<cfset var getentries = "">
-	
+
 	<!--- get clicks first --->
-	<cfquery name="q" datasource="#variables.dsn#">	
+	<cfquery name="q" datasource="#variables.dsn#">
 	select sum(clicks) as totalclicks
-	from entries e 
+	from entries e
 	where e.blogidfk = <cfqueryparam value="#arguments.id#" cfsqltype="cf_sql_integer" />
 	</cfquery>
 
-			
+
 	<cfset stats.totalclicks = q.totalclicks>
 
 	<!--- get entries --->
@@ -174,7 +174,7 @@
 		or lcase(url) like <cfqueryparam value="%#lcase(arguments.filter)#%" cfsqltype="cf_sql_varchar" />
 		or lcase(rssurl) like <cfqueryparam value="%#lcase(arguments.filter)#%" cfsqltype="cf_sql_varchar" />)
 	</cfif>
-	
+
 	order by #arguments.sidx# #arguments.sord#
 	</cfquery>
 
@@ -320,9 +320,10 @@
 	<cfquery name="q" datasource="#variables.dsn#">
 	select	cl.entryidfk, count(cl.entryidfk) as total,
 			e.title, e.url, b.name as blog, b.url as blogurl
-	from	click_log cl, entries e, blogs b
-	where	cl.entryidfk = e.id
-	and		e.blogidfk = b.id
+	from	click_log cl
+			inner join entries e on cl.entryidfk = e.id
+			inner join blogs b on e.blogidfk = b.id
+	where	1=1
 	<cfif structKeyExists(arguments,"dateafter")>
 	and 	e.created > <cfqueryparam cfsqltype="cf_sql_timestamp" value="#arguments.dateafter#">
 	</cfif>
